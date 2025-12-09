@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "vortex-status-dashboard",
+      "name": "vortex-metrics",
       "devDependencies": {
         "bun-types": "^1.3.3",
       },

@@ -3,11 +3,13 @@ import { MonthlyChart } from './components/MonthlyChart'
 
 function App() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
-      <div className="space-y-8">
-        <MonthlyChart />
-        <WeeklyChart />
+    <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white">
+      <div className="container mx-auto p-4">
+        <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+        <div className="space-y-8">
+          <MonthlyChart />
+          <WeeklyChart />
+        </div>
       </div>
     </div>
   )

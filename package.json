@@ -1,5 +1,5 @@
 {
-  "name": "vortex-status-dashboard",
+  "name": "vortex-metrics",
   "version": "1.0.0",
   "private": true,
   "workspaces": [

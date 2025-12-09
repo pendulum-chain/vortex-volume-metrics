@@ -20,7 +20,7 @@ import {
 const chartConfig = {
   volume: {
     label: 'Volume',
-    color: 'var(--chart-2)',
+    color: '#1e40af', // vortex-800 from config
   },
 } satisfies ChartConfig;
 
@@ -65,15 +65,15 @@ export function MonthlyChart() {
     <Card>
       <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
-          <CardTitle className="text-lg">Monthly Volumes</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-lg text-vortex-950">Monthly Volumes</CardTitle>
+          <CardDescription className="text-vortex-800">
             Showing monthly volumes for 2025
           </CardDescription>
         </div>
         <div className="flex">
           <div className="flex flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:px-8 sm:py-6">
-            <span className="text-muted-foreground text-xs">Total Volume</span>
-            <span className="text-lg leading-none font-bold sm:text-3xl">
+            <span className="text-vortex-800 text-xs">Total Volume</span>
+            <span className="text-vortex-950 text-lg leading-none font-bold sm:text-3xl">
               {total.toLocaleString()}
             </span>
           </div>
