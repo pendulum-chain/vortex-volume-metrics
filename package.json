@@ -1,0 +1,23 @@
+{
+  "name": "vortex-status-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel --filter backend --filter frontend dev",
+    "dev:backend": "bun run --filter backend dev",
+    "dev:frontend": "bun run --filter frontend dev",
+    "start": "bun run --parallel --filter backend --filter frontend start",
+    "start:backend": "bun run --filter backend start",
+    "start:frontend": "bun run --filter frontend start",
+    "build": "bun run --filter backend build && bun run --filter frontend build",
+    "build:backend": "bun run --filter backend build",
+    "build:frontend": "bun run --filter frontend build"
+  },
+  "devDependencies": {
+    "bun-types": "^1.3.3"
+  }
+}
