@@ -18,7 +18,7 @@ import {
 } from './ui/chart';
 
 const chartConfig = {
-  volume: {
+  total_usd: {
     label: 'Volume',
     color: '#1e40af', // vortex-800 from config
   },
@@ -26,7 +26,9 @@ const chartConfig = {
 
 interface DailyData {
   day: string;
-  volume: number;
+  buy_usd: number;
+  sell_usd: number;
+  total_usd: number;
 }
 
 interface ApiResponse {
@@ -37,13 +39,25 @@ interface ApiResponse {
 }
 
 export function DailyChart() {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+
+  const monthOptions = [];
+  for (let m = currentMonth; m >= 1; m--) {
+    const monthStr = m.toString().padStart(2, '0');
+    const date = new Date(currentYear, m - 1, 1);
+    const label = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    monthOptions.push({ value: `${currentYear}-${monthStr}`, label });
+  }
+
   const [data, setData] = useState<DailyData[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<string>('2025-10');
+  const [selectedMonth, setSelectedMonth] = useState<string>(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async (month: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/volumes?month=${month}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/volumes?month=${month}`);
       const result: ApiResponse = await response.json();
       setData(result.daily);
       setSelectedMonth(result.selectedMonth);
@@ -62,7 +76,7 @@ export function DailyChart() {
     setSelectedMonth(event.target.value);
   };
 
-  const total = data.reduce((acc, curr) => acc + curr.volume, 0);
+  const total = data.reduce((acc, curr) => acc + curr.total_usd, 0);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -94,9 +108,11 @@ export function DailyChart() {
               onChange={handleMonthChange}
               className="text-vortex-950 text-lg leading-none font-bold sm:text-3xl bg-transparent border-none outline-none"
             >
-              <option value="2025-10">October 2025</option>
-              <option value="2025-11">November 2025</option>
-              <option value="2025-12">December 2025</option>
+              {monthOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -121,8 +137,9 @@ export function DailyChart() {
               axisLine={false}
               tickMargin={1}
               tickFormatter={(value: string) => {
-                const date = new Date(value);
-                return date.getDate().toString();
+                // Parse YYYY-MM-DD format without timezone issues
+                const [year, month, day] = value.split('-').map(Number);
+                return day.toString();
               }}
             />
             <ChartTooltip
@@ -131,9 +148,11 @@ export function DailyChart() {
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey="volume"
+                  nameKey="total_usd"
                   labelFormatter={(value: string) => {
-                    const date = new Date(value);
+                    // Parse YYYY-MM-DD format without timezone issues
+                    const [year, month, day] = value.split('-').map(Number);
+                    const date = new Date(year, month - 1, day);
                     return date.toLocaleDateString('en-US', {
                       month: 'short',
                       day: 'numeric',
@@ -143,7 +162,7 @@ export function DailyChart() {
                 />
               }
             />
-            <Bar dataKey="volume" fill="var(--color-volume)" maxBarSize={40} />
+            <Bar dataKey="total_usd" fill="var(--color-total_usd)" maxBarSize={40} />
           </BarChart>
         </ChartContainer>
       </CardContent>

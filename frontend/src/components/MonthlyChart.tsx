@@ -42,7 +42,7 @@ export function MonthlyChart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3001/volumes');
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/volumes`);
         const result: ApiResponse = await response.json();
         setData(result.monthly);
       } catch (error) {
@@ -99,7 +99,9 @@ export function MonthlyChart() {
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value: string) => {
-                const date = new Date(value + '-01');
+                // Parse YYYY-MM format without timezone issues
+                const [year, month] = value.split('-').map(Number);
+                const date = new Date(year, month - 1, 1);
                 return date.toLocaleDateString('en-US', { month: 'short' });
               }}
             />
@@ -111,7 +113,9 @@ export function MonthlyChart() {
                   className="w-[150px]"
                   nameKey="volume"
                   labelFormatter={(value: string) => {
-                    const date = new Date(value + '-01');
+                    // Parse YYYY-MM format without timezone issues
+                    const [year, month] = value.split('-').map(Number);
+                    const date = new Date(year, month - 1, 1);
                     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
                   }}
                 />

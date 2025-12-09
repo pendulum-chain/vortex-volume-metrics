@@ -36,13 +36,25 @@ interface ApiResponse {
 }
 
 export function WeeklyChart() {
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = currentDate.getMonth() + 1;
+
+  const monthOptions = [];
+  for (let m = currentMonth; m >= 1; m--) {
+    const monthStr = m.toString().padStart(2, '0');
+    const date = new Date(currentYear, m - 1, 1);
+    const label = date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+    monthOptions.push({ value: `${currentYear}-${monthStr}`, label });
+  }
+
   const [data, setData] = useState<WeeklyData[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState<string>('2025-10');
+  const [selectedMonth, setSelectedMonth] = useState<string>(`${currentYear}-${currentMonth.toString().padStart(2, '0')}`);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async (month: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/volumes?month=${month}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/volumes?month=${month}`);
       const result: ApiResponse = await response.json();
       setData(result.weekly);
       setSelectedMonth(result.selectedMonth);
@@ -93,9 +105,11 @@ export function WeeklyChart() {
               onChange={handleMonthChange}
               className="text-vortex-950 text-lg leading-none font-bold sm:text-3xl bg-transparent border-none outline-none"
             >
-              <option value="2025-10">October 2025</option>
-              <option value="2025-11">November 2025</option>
-              <option value="2025-12">December 2025</option>
+              {monthOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>

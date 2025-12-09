@@ -1,5 +1,8 @@
 import express from 'express';
 import cors from 'cors';
+import NodeCache from 'node-cache';
+import { supabase } from './config.js';
+import type { MonthlyVolume, DailyVolume, WeeklyVolume, VolumeData } from './types.js';
 
 const app = express();
 app.use(cors({
@@ -9,160 +12,171 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Mock data for volumes
-const mockMonthlyData = [
-  { month: '2025-01', volume: 1200 },
-  { month: '2025-02', volume: 1500 },
-  { month: '2025-03', volume: 1800 },
-  { month: '2025-04', volume: 1400 },
-  { month: '2025-05', volume: 1600 },
-  { month: '2025-06', volume: 1900 },
-  { month: '2025-07', volume: 1700 },
-  { month: '2025-08', volume: 2000 },
-  { month: '2025-09', volume: 2100 },
-  { month: '2025-10', volume: 1800 },
-  { month: '2025-11', volume: 2200 },
-  { month: '2025-12', volume: 2500 },
-];
+const cache = new NodeCache();
 
-const mockWeeklyData = {
-  '2025-10': [
-    { week: 'Week 1', volume: 400 },
-    { week: 'Week 2', volume: 450 },
-    { week: 'Week 3', volume: 380 },
-    { week: 'Week 4', volume: 420 },
-    { week: 'Week 5', volume: 150 }, // partial week
-  ],
-  '2025-11': [
-    { week: 'Week 1', volume: 500 },
-    { week: 'Week 2', volume: 550 },
-    { week: 'Week 3', volume: 480 },
-    { week: 'Week 4', volume: 520 },
-    { week: 'Week 5', volume: 150 },
-  ],
-  '2025-12': [
-    { week: 'Week 1', volume: 600 },
-    { week: 'Week 2', volume: 650 },
-    { week: 'Week 3', volume: 580 },
-    { week: 'Week 4', volume: 620 },
-    { week: 'Week 5', volume: 50 },
-  ],
-};
+async function getMonthlyVolumes(year: number): Promise<MonthlyVolume[]> {
+  const cacheKey = `monthly-${year}`;
+  const cached = cache.get<MonthlyVolume[]>(cacheKey);
+  if (cached) return cached;
 
-const mockDailyData = {
-  '2025-10': [
-    { day: '2025-10-01', volume: 120 },
-    { day: '2025-10-02', volume: 135 },
-    { day: '2025-10-03', volume: 110 },
-    { day: '2025-10-04', volume: 145 },
-    { day: '2025-10-05', volume: 130 },
-    { day: '2025-10-06', volume: 125 },
-    { day: '2025-10-07', volume: 140 },
-    { day: '2025-10-08', volume: 115 },
-    { day: '2025-10-09', volume: 150 },
-    { day: '2025-10-10', volume: 135 },
-    { day: '2025-10-11', volume: 120 },
-    { day: '2025-10-12', volume: 145 },
-    { day: '2025-10-13', volume: 130 },
-    { day: '2025-10-14', volume: 125 },
-    { day: '2025-10-15', volume: 140 },
-    { day: '2025-10-16', volume: 115 },
-    { day: '2025-10-17', volume: 150 },
-    { day: '2025-10-18', volume: 135 },
-    { day: '2025-10-19', volume: 120 },
-    { day: '2025-10-20', volume: 145 },
-    { day: '2025-10-21', volume: 130 },
-    { day: '2025-10-22', volume: 125 },
-    { day: '2025-10-23', volume: 140 },
-    { day: '2025-10-24', volume: 115 },
-    { day: '2025-10-25', volume: 150 },
-    { day: '2025-10-26', volume: 135 },
-    { day: '2025-10-27', volume: 120 },
-    { day: '2025-10-28', volume: 145 },
-    { day: '2025-10-29', volume: 130 },
-    { day: '2025-10-30', volume: 125 },
-    { day: '2025-10-31', volume: 140 },
-  ],
-  '2025-11': [
-    { day: '2025-11-01', volume: 130 },
-    { day: '2025-11-02', volume: 145 },
-    { day: '2025-11-03', volume: 120 },
-    { day: '2025-11-04', volume: 155 },
-    { day: '2025-11-05', volume: 140 },
-    { day: '2025-11-06', volume: 135 },
-    { day: '2025-11-07', volume: 150 },
-    { day: '2025-11-08', volume: 125 },
-    { day: '2025-11-09', volume: 160 },
-    { day: '2025-11-10', volume: 145 },
-    { day: '2025-11-11', volume: 130 },
-    { day: '2025-11-12', volume: 155 },
-    { day: '2025-11-13', volume: 140 },
-    { day: '2025-11-14', volume: 135 },
-    { day: '2025-11-15', volume: 150 },
-    { day: '2025-11-16', volume: 125 },
-    { day: '2025-11-17', volume: 160 },
-    { day: '2025-11-18', volume: 145 },
-    { day: '2025-11-19', volume: 130 },
-    { day: '2025-11-20', volume: 155 },
-    { day: '2025-11-21', volume: 140 },
-    { day: '2025-11-22', volume: 135 },
-    { day: '2025-11-23', volume: 150 },
-    { day: '2025-11-24', volume: 125 },
-    { day: '2025-11-25', volume: 160 },
-    { day: '2025-11-26', volume: 145 },
-    { day: '2025-11-27', volume: 130 },
-    { day: '2025-11-28', volume: 155 },
-    { day: '2025-11-29', volume: 140 },
-    { day: '2025-11-30', volume: 135 },
-  ],
-  '2025-12': [
-    { day: '2025-12-01', volume: 140 },
-    { day: '2025-12-02', volume: 155 },
-    { day: '2025-12-03', volume: 130 },
-    { day: '2025-12-04', volume: 165 },
-    { day: '2025-12-05', volume: 150 },
-    { day: '2025-12-06', volume: 145 },
-    { day: '2025-12-07', volume: 160 },
-    { day: '2025-12-08', volume: 135 },
-    { day: '2025-12-09', volume: 170 },
-    { day: '2025-12-10', volume: 155 },
-    { day: '2025-12-11', volume: 140 },
-    { day: '2025-12-12', volume: 165 },
-    { day: '2025-12-13', volume: 150 },
-    { day: '2025-12-14', volume: 145 },
-    { day: '2025-12-15', volume: 160 },
-    { day: '2025-12-16', volume: 135 },
-    { day: '2025-12-17', volume: 170 },
-    { day: '2025-12-18', volume: 155 },
-    { day: '2025-12-19', volume: 140 },
-    { day: '2025-12-20', volume: 165 },
-    { day: '2025-12-21', volume: 150 },
-    { day: '2025-12-22', volume: 145 },
-    { day: '2025-12-23', volume: 160 },
-    { day: '2025-12-24', volume: 135 },
-    { day: '2025-12-25', volume: 170 },
-    { day: '2025-12-26', volume: 155 },
-    { day: '2025-12-27', volume: 140 },
-    { day: '2025-12-28', volume: 165 },
-    { day: '2025-12-29', volume: 150 },
-    { day: '2025-12-30', volume: 145 },
-    { day: '2025-12-31', volume: 160 },
-  ],
-};
+  try {
+    const { data, error } = await supabase.rpc('get_monthly_volumes', { year_param: year });
 
-app.get('/volumes', (req, res) => {
-  const { month } = req.query;
-  const currentMonth = month || new Date().toISOString().slice(0, 7); // YYYY-MM
+    if (error) throw error;
 
-  const weeklyData = mockWeeklyData[currentMonth as keyof typeof mockWeeklyData] || mockWeeklyData['2025-10'];
-  const dailyData = mockDailyData[currentMonth as keyof typeof mockDailyData] || mockDailyData['2025-10'];
+    // Create a map of existing data
+    const dataMap = new Map<string, number>();
+    data.forEach((row: any) => {
+      dataMap.set(row.month, parseFloat(row.volume));
+    });
 
-  res.json({
-    monthly: mockMonthlyData,
-    weekly: weeklyData,
-    daily: dailyData,
-    selectedMonth: currentMonth,
+    // Fill in all months of the year up to current month
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // 1-12
+    
+    // Determine how many months to show
+    const maxMonth = year === currentYear ? currentMonth : 12;
+    
+    const volumes: MonthlyVolume[] = [];
+    for (let month = 1; month <= maxMonth; month++) {
+      const monthStr = `${year}-${month.toString().padStart(2, '0')}`;
+      const volume = dataMap.get(monthStr) ?? 0;
+      volumes.push({ month: monthStr, volume });
+    }
+
+    // TTL 5 minutes since current year includes current month
+    cache.set(cacheKey, volumes, 5 * 60);
+    return volumes;
+  } catch (rpcError: any) {
+    throw new Error('Could not calculate monthly volumes: ' + rpcError.message);
+  }
+}
+
+async function getDailyVolumes(month: string): Promise<DailyVolume[]> {
+  const cacheKey = `daily-${month}`;
+  const cached = cache.get<DailyVolume[]>(cacheKey);
+  if (cached) return cached;
+
+  try {
+    const { data, error } = await supabase.rpc('get_daily_volumes', { month_param: month });
+    console.log('RPC data: ', data);
+    if (error) throw error;
+
+    // Create a map of existing data
+    const dataMap = new Map<string, DailyVolume>();
+    data.forEach((row: any) => {
+      dataMap.set(row.day, {
+        day: row.day,
+        buy_usd: parseFloat(row.buy_usd),
+        sell_usd: parseFloat(row.sell_usd),
+        total_usd: parseFloat(row.total_usd),
+      });
+    });
+
+    // Fill in all days of the month
+    const parts = month.split('-').map(Number);
+    const year = parts[0] ?? new Date().getFullYear();
+    const monthNum = parts[1] ?? 1;
+    const lastDayOfMonth = new Date(year, monthNum, 0);
+    const totalDaysInMonth = lastDayOfMonth.getDate();
+
+    const volumes: DailyVolume[] = [];
+    for (let day = 1; day <= totalDaysInMonth; day++) {
+      const dayStr = `${month}-${day.toString().padStart(2, '0')}`;
+      const existing = dataMap.get(dayStr);
+      if (existing) {
+        volumes.push(existing);
+      } else {
+        volumes.push({
+          day: dayStr,
+          buy_usd: 0,
+          sell_usd: 0,
+          total_usd: 0,
+        });
+      }
+    }
+
+    cache.set(cacheKey, volumes, 5 * 60);
+    return volumes;
+  } catch (rpcError: any) {
+    throw new Error('Could not calculate daily volumes: ' + rpcError.message);
+  }
+}
+
+function aggregateWeekly(daily: DailyVolume[], month: string): WeeklyVolume[] {
+  // Get the first day of the month
+  const parts = month.split('-').map(Number);
+  const year = parts[0] ?? new Date().getFullYear();
+  const monthNum = parts[1] ?? 1;
+  const lastDayOfMonth = new Date(year, monthNum, 0);
+  const totalDaysInMonth = lastDayOfMonth.getDate();
+  
+  // Calculate number of weeks in the month (a week is any 7-day period starting from day 1)
+  const numWeeks = Math.ceil(totalDaysInMonth / 7);
+  
+  // Initialize weeks with 0 volume
+  const weeks: { [key: string]: number } = {};
+  for (let i = 1; i <= numWeeks; i++) {
+    weeks[`Week ${i}`] = 0;
+  }
+  
+  // Aggregate daily volumes into weeks
+  daily.forEach(d => {
+    // Parse YYYY-MM-DD format without timezone issues
+    const dayParts = d.day.split('-').map(Number);
+    const dayOfMonth = dayParts[2] ?? 1;
+    // Week 1: days 1-7, Week 2: days 8-14, etc.
+    const weekNum = Math.ceil(dayOfMonth / 7);
+    const weekKey = `Week ${weekNum}`;
+    const currentValue = weeks[weekKey] ?? 0;
+    weeks[weekKey] = currentValue + d.total_usd;
   });
+  
+  return Object.entries(weeks)
+    .sort((a, b) => {
+      const weekA = parseInt(a[0].replace('Week ', ''));
+      const weekB = parseInt(b[0].replace('Week ', ''));
+      return weekA - weekB;
+    })
+    .map(([week, volume]) => ({ week, volume }));
+}
+
+async function getWeeklyVolumes(month: string): Promise<WeeklyVolume[]> {
+  const cacheKey = `weekly-${month}`;
+  const cached = cache.get<WeeklyVolume[]>(cacheKey);
+  if (cached) return cached;
+
+  const daily = await getDailyVolumes(month);
+  const weekly = aggregateWeekly(daily, month);
+  cache.set(cacheKey, weekly, 5 * 60);
+  return weekly;
+}
+
+
+
+app.get('/volumes', async (req, res) => {
+  try {
+    const { month } = req.query;
+    const selectedMonth = (month as string) || new Date().toISOString().slice(0, 7); // YYYY-MM
+    const year = new Date().getFullYear();
+    console.log('Fetching volumes for month:', selectedMonth);
+    const [monthly, weekly, daily] = await Promise.all([
+      getMonthlyVolumes(year),
+      getWeeklyVolumes(selectedMonth),
+      getDailyVolumes(selectedMonth),
+    ]);
+
+    res.json({
+      monthly,
+      weekly,
+      daily,
+      selectedMonth,
+    });
+  } catch (error) {
+    console.error('Error fetching volumes:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 const PORT = process.env.PORT || 3001;
