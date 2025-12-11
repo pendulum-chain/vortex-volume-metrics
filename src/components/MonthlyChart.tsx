@@ -1,8 +1,8 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
-import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
+import type { MonthlyData } from '../App';
 
 import {
   Card,
@@ -16,21 +16,20 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from './ui/chart';
 
 const chartConfig = {
-  total_usd: {
-    label: 'Volume',
-    color: '#1e40af', // vortex-800 from config
+  buy_usd: {
+    label: 'Buy',
+    color: '#1d4ed8', // vortex-700
+  },
+  sell_usd: {
+    label: 'Sell',
+    color: '#3b82f6', // vortex-500
   },
 } satisfies ChartConfig;
-
-interface MonthlyData {
-  month: string;
-  buy_usd: number;
-  sell_usd: number;
-  total_usd: number;
-}
 
 interface MonthlyChartProps {
   monthlyData: MonthlyData[];
@@ -38,7 +37,7 @@ interface MonthlyChartProps {
 }
 
 export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
-  const total = monthlyData.reduce((acc, curr) => acc + curr.total_usd, 0);
+  const total = monthlyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;
@@ -63,7 +62,7 @@ export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
           <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
-              {total.toLocaleString()}
+              ${total.toLocaleString()}
             </span>
           </div>
         </div>
@@ -97,20 +96,21 @@ export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="total_usd"
-                  labelFormatter={(value: string) => {
-                    // Parse YYYY-MM format without timezone issues
-                    const [year, month] = value.split('-').map(Number);
-                    const date = new Date(year, month - 1, 1);
-                    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                  }}
-                />
-              }
+              content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="total_usd" fill="var(--color-total_usd)" />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Bar
+              dataKey="buy_usd"
+              stackId="a"
+              fill="var(--color-buy_usd)"
+              radius={[0, 0, 4, 4]}
+            />
+            <Bar
+              dataKey="sell_usd"
+              stackId="a"
+              fill="var(--color-sell_usd)"
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>

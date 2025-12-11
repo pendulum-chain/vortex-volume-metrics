@@ -3,21 +3,23 @@ import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
 import type { DateRange } from 'react-day-picker';
 
-interface WeeklyData {
+export interface WeeklyData {
   week: string;
   startDate: string;
   endDate: string;
-  volume: number;
+  buy_usd: number;
+  sell_usd: number;
+  total_usd: number;
 }
 
-interface MonthlyData {
+export interface MonthlyData {
   month: string;
   buy_usd: number;
   sell_usd: number;
   total_usd: number;
 }
 
-interface ApiResponse {
+export interface ApiResponse {
   monthly: MonthlyData[];
   weekly: WeeklyData[];
   startDate: string;

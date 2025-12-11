@@ -4,6 +4,7 @@ import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
+import type { WeeklyData } from '../App';
 
 import {
   Card,
@@ -17,23 +18,23 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from './ui/chart';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 const chartConfig = {
-  volume: {
-    label: 'Volume',
-    color: '#1e40af', // vortex-800 from config
+  buy_usd: {
+    label: 'Buy',
+    color: '#1d4ed8', // vortex-700
+  },
+  sell_usd: {
+    label: 'Sell',
+    color: '#3b82f6', // vortex-500
   },
 } satisfies ChartConfig;
 
-interface WeeklyData {
-  week: string;
-  startDate: string;
-  endDate: string;
-  volume: number;
-}
 
 interface WeeklyChartProps {
   weeklyData: WeeklyData[];
@@ -42,7 +43,7 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
-  const total = weeklyData.reduce((acc, curr) => acc + curr.volume, 0);
+  const total = weeklyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
   return (
     <Card>
@@ -57,7 +58,7 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
           <div className="flex flex-col justify-center gap-1 px-8 py-6 text-left">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
-              {total.toLocaleString()}
+              ${total.toLocaleString()}
             </span>
           </div>
           <div className="flex flex-col justify-center gap-1 border-l px-8 py-6">
@@ -122,15 +123,23 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={
-                <ChartTooltipContent
-                  className="w-[150px]"
-                  nameKey="volume"
-                  labelFormatter={(value: string) => value}
-                />
-              }
+              content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="volume" fill="var(--color-volume)" maxBarSize={78} />
+            <ChartLegend content={<ChartLegendContent />} />
+            <Bar
+              dataKey="buy_usd"
+              stackId="a"
+              fill="var(--color-buy_usd)"
+              radius={[0, 0, 4, 4]}
+              maxBarSize={78}
+            />
+            <Bar
+              dataKey="sell_usd"
+              stackId="a"
+              fill="var(--color-sell_usd)"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={78}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
