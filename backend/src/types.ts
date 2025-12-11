@@ -12,6 +12,8 @@ export interface DailyVolume {
 
 export interface WeeklyVolume {
   week: string;
+  startDate: string;
+  endDate: string;
   volume: number;
 }
 

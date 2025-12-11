@@ -1,6 +1,5 @@
 import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
-import { DailyChart } from './components/DailyChart'
 
 function App() {
   return (
@@ -10,7 +9,6 @@ function App() {
         <div className="space-y-8">
           <MonthlyChart />
           <WeeklyChart />
-          <DailyChart />
         </div>
       </div>
     </div>

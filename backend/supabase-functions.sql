@@ -22,7 +22,7 @@ AS $$
 $$;
 
 -- Daily volumes function
-CREATE OR REPLACE FUNCTION get_daily_volumes(month_param TEXT)
+CREATE OR REPLACE FUNCTION get_daily_volumes(start_date DATE, end_date DATE)
 RETURNS TABLE(day TEXT, buy_usd NUMERIC, sell_usd NUMERIC, total_usd NUMERIC)
 LANGUAGE SQL
 AS $$
@@ -36,7 +36,8 @@ AS $$
     FROM public.ramp_states AS rs
     JOIN public.quote_tickets AS qt ON qt.id = rs.quote_id
     WHERE rs.current_phase = 'complete'
-      AND date_trunc('month', rs.created_at) = (month_param || '-01')::date
+      AND rs.created_at >= start_date
+      AND rs.created_at < end_date + interval '1 day'
   )
   SELECT
     to_char(day, 'YYYY-MM-DD') AS day,
