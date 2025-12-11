@@ -18,7 +18,7 @@ import {
 } from './ui/chart';
 
 const chartConfig = {
-  volume: {
+  total_usd: {
     label: 'Volume',
     color: '#1e40af', // vortex-800 from config
   },
@@ -26,7 +26,9 @@ const chartConfig = {
 
 interface MonthlyData {
   month: string;
-  volume: number;
+  buy_usd: number;
+  sell_usd: number;
+  total_usd: number;
 }
 
 interface ApiResponse {
@@ -55,7 +57,7 @@ export function MonthlyChart() {
     fetchData();
   }, []);
 
-  const total = data.reduce((acc, curr) => acc + curr.volume, 0);
+  const total = data.reduce((acc, curr) => acc + curr.total_usd, 0);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -111,7 +113,7 @@ export function MonthlyChart() {
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey="volume"
+                  nameKey="total_usd"
                   labelFormatter={(value: string) => {
                     // Parse YYYY-MM format without timezone issues
                     const [year, month] = value.split('-').map(Number);
@@ -121,7 +123,7 @@ export function MonthlyChart() {
                 />
               }
             />
-            <Bar dataKey="volume" fill="var(--color-volume)" />
+            <Bar dataKey="total_usd" fill="var(--color-total_usd)" />
           </BarChart>
         </ChartContainer>
       </CardContent>
