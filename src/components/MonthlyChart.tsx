@@ -42,7 +42,7 @@ export function MonthlyChart() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/volumes`);
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/metrics/volumes`);
         const result: ApiResponse = await response.json();
         setData(result.monthly);
       } catch (error) {
