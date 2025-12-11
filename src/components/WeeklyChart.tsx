@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -36,50 +35,14 @@ interface WeeklyData {
   volume: number;
 }
 
-interface ApiResponse {
-  monthly: { month: string; volume: number }[];
-  weekly: WeeklyData[];
-  startDate: string;
-  endDate: string;
+interface WeeklyChartProps {
+  weeklyData: WeeklyData[];
+  dateRange: DateRange | undefined;
+  setDateRange: (range: DateRange | undefined) => void;
 }
 
-export function WeeklyChart() {
-  const currentDate = new Date();
-  const threeMonthsAgo = new Date(currentDate);
-  threeMonthsAgo.setMonth(currentDate.getMonth() - 3);
-
-  const [data, setData] = useState<WeeklyData[]>([]);
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: threeMonthsAgo,
-    to: currentDate,
-  });
-  const [loading, setLoading] = useState(true);
-
-  const fetchData = async (start: string, end: string) => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/metrics/volumes?start=${start}&end=${end}`);
-      const result: ApiResponse = await response.json();
-      setData(result.weekly);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (dateRange?.from && dateRange?.to) {
-      const start = dateRange.from.toISOString().slice(0, 10);
-      const end = dateRange.to.toISOString().slice(0, 10);
-      fetchData(start, end);
-    }
-  }, [dateRange]);
-
-  const total = data.reduce((acc, curr) => acc + curr.volume, 0);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
+  const total = weeklyData.reduce((acc, curr) => acc + curr.volume, 0);
 
   return (
     <Card>
@@ -140,7 +103,7 @@ export function WeeklyChart() {
         >
           <BarChart
             accessibilityLayer
-            data={data}
+            data={weeklyData}
             margin={{
               left: 12,
               right: 12,

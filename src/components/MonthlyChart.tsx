@@ -1,7 +1,8 @@
 "use client"
 
-import { useState, useEffect } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
+import { format } from 'date-fns';
+import type { DateRange } from 'react-day-picker';
 
 import {
   Card,
@@ -31,37 +32,13 @@ interface MonthlyData {
   total_usd: number;
 }
 
-interface ApiResponse {
-  monthly: MonthlyData[];
-  weekly: { week: string; volume: number }[];
-  selectedMonth: string;
+interface MonthlyChartProps {
+  monthlyData: MonthlyData[];
+  dateRange: DateRange | undefined;
 }
 
-export function MonthlyChart() {
-  const [data, setData] = useState<MonthlyData[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/metrics/volumes`);
-        const result: ApiResponse = await response.json();
-        setData(result.monthly);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  const total = data.reduce((acc, curr) => acc + curr.total_usd, 0);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
+  const total = monthlyData.reduce((acc, curr) => acc + curr.total_usd, 0);
 
   return (
     <Card>
@@ -69,7 +46,7 @@ export function MonthlyChart() {
         <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
           <CardTitle className="text-lg text-vortex-950">Monthly Volumes</CardTitle>
           <CardDescription className="text-vortex-800">
-            Showing monthly volumes for 2025
+            Showing monthly volumes from {dateRange?.from ? format(dateRange.from, 'PPP') : ''} to {dateRange?.to ? format(dateRange.to, 'PPP') : ''}
           </CardDescription>
         </div>
         <div className="flex">
@@ -88,7 +65,7 @@ export function MonthlyChart() {
         >
           <BarChart
             accessibilityLayer
-            data={data}
+            data={monthlyData}
             margin={{
               left: 12,
               right: 12,
