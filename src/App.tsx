@@ -66,7 +66,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
         <div className="space-y-8">

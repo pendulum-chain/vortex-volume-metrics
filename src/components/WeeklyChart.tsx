@@ -46,21 +46,21 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
 
   return (
     <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+      <CardHeader className="flex flex-row items-stretch space-y-0 border-b p-0">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6">
           <CardTitle className="text-vortex-950">Weekly Volumes</CardTitle>
           <CardDescription className="text-vortex-800">
-            Showing weekly volumes from {dateRange?.from ? format(dateRange.from, 'PPP') : ''} to {dateRange?.to ? format(dateRange.to, 'PPP') : ''}
+            {dateRange?.from ? format(dateRange.from, 'PPP') : ''} - {dateRange?.to ? format(dateRange.to, 'PPP') : ''}
           </CardDescription>
         </div>
         <div className="flex">
-          <div className="flex flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="flex flex-col justify-center gap-1 px-8 py-6 text-left">
             <span className="text-vortex-800 text-xs">Total Volume</span>
-            <span className="text-vortex-950 text-lg leading-none font-bold sm:text-3xl">
+            <span className="text-vortex-950 text-3xl leading-none font-bold">
               {total.toLocaleString()}
             </span>
           </div>
-          <div className="flex flex-col justify-center gap-1 border-t px-6 py-4 sm:border-t-0 sm:border-l sm:px-8 sm:py-6">
+          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6">
             <label className="text-vortex-800 text-xs">Select Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
@@ -96,7 +96,7 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-6 pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"

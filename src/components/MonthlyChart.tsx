@@ -40,25 +40,35 @@ interface MonthlyChartProps {
 export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
   const total = monthlyData.reduce((acc, curr) => acc + curr.total_usd, 0);
 
+  const firstMonth = monthlyData[0]?.month;
+  const lastMonth = monthlyData[monthlyData.length - 1]?.month;
+  const formatMonth = (monthStr: string) => {
+    const [year, month] = monthStr.split('-').map(Number);
+    const date = new Date(year, month - 1, 1);
+    return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  };
+  const firstFormatted = firstMonth ? formatMonth(firstMonth) : '';
+  const lastFormatted = lastMonth ? formatMonth(lastMonth) : '';
+
   return (
     <Card>
-      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 sm:flex-row">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-5 sm:py-6">
+      <CardHeader className="flex flex-row items-stretch space-y-0 border-b p-0">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6">
           <CardTitle className="text-lg text-vortex-950">Monthly Volumes</CardTitle>
           <CardDescription className="text-vortex-800">
-            Showing monthly volumes from {dateRange?.from ? format(dateRange.from, 'PPP') : ''} to {dateRange?.to ? format(dateRange.to, 'PPP') : ''}
+            {firstFormatted} to {lastFormatted}
           </CardDescription>
         </div>
         <div className="flex">
-          <div className="flex flex-col justify-center gap-1 border-t px-6 py-4 text-left sm:border-t-0 sm:px-8 sm:py-6">
+          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left">
             <span className="text-vortex-800 text-xs">Total Volume</span>
-            <span className="text-vortex-950 text-lg leading-none font-bold sm:text-3xl">
+            <span className="text-vortex-950 text-3xl leading-none font-bold">
               {total.toLocaleString()}
             </span>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
+      <CardContent className="px-6 pt-6">
         <ChartContainer
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
