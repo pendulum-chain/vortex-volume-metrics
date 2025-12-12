@@ -27,7 +27,7 @@ const chartConfig = {
   },
   sell_usd: {
     label: 'Sell',
-    color: '#3b82f6', // vortex-500
+    color: '#ea580c', 
   },
 } satisfies ChartConfig;
 
@@ -36,7 +36,7 @@ interface MonthlyChartProps {
   dateRange: DateRange | undefined;
 }
 
-export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
+export function MonthlyChart({ monthlyData }: MonthlyChartProps) {
   const total = monthlyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
   const firstMonth = monthlyData[0]?.month;
@@ -59,7 +59,7 @@ export function MonthlyChart({ monthlyData, dateRange }: MonthlyChartProps) {
           </CardDescription>
         </div>
         <div className="flex">
-          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left">
+          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left w-[200px]">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
               ${total.toLocaleString()}

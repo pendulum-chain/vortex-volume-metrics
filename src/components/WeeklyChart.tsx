@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from 'react';
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
@@ -31,7 +32,7 @@ const chartConfig = {
   },
   sell_usd: {
     label: 'Sell',
-    color: '#3b82f6', // vortex-500
+    color: '#ea580c',
   },
 } satisfies ChartConfig;
 
@@ -45,6 +46,19 @@ interface WeeklyChartProps {
 export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
   const total = weeklyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-stretch space-y-0 border-b p-0">
@@ -55,13 +69,7 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
           </CardDescription>
         </div>
         <div className="flex">
-          <div className="flex flex-col justify-center gap-1 px-8 py-6 text-left">
-            <span className="text-vortex-800 text-xs">Total Volume</span>
-            <span className="text-vortex-950 text-3xl leading-none font-bold">
-              ${total.toLocaleString()}
-            </span>
-          </div>
-          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6">
+          <div className="flex flex-col justify-center gap-1 px-8 py-6">
             <label className="text-vortex-800 text-xs">Select Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
@@ -95,6 +103,12 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
               </PopoverContent>
             </Popover>
           </div>
+          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left w-[200px]">
+            <span className="text-vortex-800 text-xs">Total Volume</span>
+            <span className="text-vortex-950 text-3xl leading-none font-bold">
+              ${total.toLocaleString()}
+            </span>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="px-6 pt-6">
@@ -123,7 +137,12 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={<ChartTooltipContent hideLabel />}
+              content={
+                <ChartTooltipContent
+                  hideLabel={!isSmallScreen}
+                  labelFormatter={(value) => isSmallScreen ? `Week: ${value}` : ''}
+                />
+              }
             />
             <ChartLegend content={<ChartLegendContent />} />
             <Bar

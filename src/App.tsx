@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
 import type { DateRange } from 'react-day-picker';
@@ -37,7 +37,7 @@ function App() {
     to: currentDate,
   });
   const [loading, setLoading] = useState(true);
-  const fetchedRef = useRef<Set<string>>(new Set());
+  const [lastFetchedKey, setLastFetchedKey] = useState<string | null>(null);
 
   const fetchData = async (start: string, end: string) => {
     try {
@@ -56,9 +56,9 @@ function App() {
       const start = dateRange.from.toISOString().slice(0, 10);
       const end = dateRange.to.toISOString().slice(0, 10);
       const key = `${start}-${end}`;
-      if (!fetchedRef.current.has(key)) {
-        fetchedRef.current.add(key);
+      if (key !== lastFetchedKey) {
         fetchData(start, end);
+        setLastFetchedKey(key);
       }
     }
   }, [dateRange]);
