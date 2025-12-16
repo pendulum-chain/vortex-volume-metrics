@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
+import { SkeletonChart } from './components/SkeletonChart'
 import type { DateRange } from 'react-day-picker';
 
 export interface WeeklyData {
@@ -37,6 +38,7 @@ function App() {
     to: currentDate,
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [lastFetchedKey, setLastFetchedKey] = useState<string | null>(null);
 
   const fetchData = async (start: string, end: string) => {
@@ -46,6 +48,7 @@ function App() {
       setData(result);
     } catch (error) {
       console.error('Error fetching data:', error);
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -63,8 +66,62 @@ function App() {
     }
   }, [dateRange]);
 
-  if (loading || !data) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
+        <div className="container mx-auto p-4">
+          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+          <div className="space-y-8">
+            <SkeletonChart />
+            <SkeletonChart />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
+        <div className="container mx-auto p-4">
+          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+            <div className="mb-2 text-red-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="mx-auto"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" x2="12" y1="8" y2="12" />
+                <line x1="12" x2="12.01" y1="16" y2="16" />
+              </svg>
+            </div>
+            <h3 className="mb-1 text-lg font-semibold text-red-900">Data Unavailable</h3>
+            <p className="mb-4 text-sm text-red-700">
+              We couldn't load the volume metrics properly. Please try again later.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="rounded bg-white px-4 py-2 text-sm font-medium text-red-900 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+     return null; 
   }
 
   return (
