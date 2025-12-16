@@ -38,13 +38,24 @@ const chartConfig = {
 
 
 interface WeeklyChartProps {
-  weeklyData: WeeklyData[];
+  weeklyDataRaw: WeeklyData[];
   dateRange: DateRange | undefined;
   setDateRange: (range: DateRange | undefined) => void;
 }
 
-export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
-  const total = weeklyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyChartProps) {
+  const total = weeklyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+
+  const weeklyData: WeeklyData[] = weeklyDataRaw.map((data) => {
+    return {
+        week: data.week,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        buy_usd: Math.round(data.buy_usd),
+        sell_usd: Math.round(data.sell_usd),
+        total_usd: Math.round(data.total_usd),
+    }
+  });
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 

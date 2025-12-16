@@ -129,8 +129,8 @@ function App() {
       <div className="container mx-auto p-4">
         <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
         <div className="space-y-8">
-          <MonthlyChart monthlyData={data?.monthly || []} dateRange={dateRange} />
-          <WeeklyChart weeklyData={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />
+          <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
+          <WeeklyChart weeklyDataRaw={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />
         </div>
       </div>
     </div>

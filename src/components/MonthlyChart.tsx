@@ -32,12 +32,21 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface MonthlyChartProps {
-  monthlyData: MonthlyData[];
+  monthlyDataRaw: MonthlyData[];
   dateRange: DateRange | undefined;
 }
 
-export function MonthlyChart({ monthlyData }: MonthlyChartProps) {
-  const total = monthlyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
+  const total = monthlyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+
+  const monthlyData: MonthlyData[] = monthlyDataRaw.map((data) => {
+    return {
+      month: data.month,
+      buy_usd: Math.round(data.buy_usd),
+      sell_usd: Math.round(data.sell_usd),
+      total_usd: Math.round(data.total_usd),
+    };
+  });
 
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;
