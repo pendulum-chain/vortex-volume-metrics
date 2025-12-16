@@ -44,8 +44,6 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyChartProps) {
-  const total = weeklyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
-
   const weeklyData: WeeklyData[] = weeklyDataRaw.map((data) => {
     return {
         week: data.week,
@@ -56,6 +54,8 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
         total_usd: Math.round(data.total_usd),
     }
   });
+
+  const total = weeklyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 

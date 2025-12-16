@@ -37,8 +37,6 @@ interface MonthlyChartProps {
 }
 
 export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
-  const total = monthlyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
-
   const monthlyData: MonthlyData[] = monthlyDataRaw.map((data) => {
     return {
       month: data.month,
@@ -48,6 +46,7 @@ export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
     };
   });
 
+  const total = monthlyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;
   const formatMonth = (monthStr: string) => {
