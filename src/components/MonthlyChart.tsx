@@ -59,7 +59,7 @@ export function MonthlyChart({ monthlyData }: MonthlyChartProps) {
           </CardDescription>
         </div>
         <div className="flex">
-          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left w-[200px]">
+          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left min-w-[200px]">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
               ${total.toLocaleString()}
