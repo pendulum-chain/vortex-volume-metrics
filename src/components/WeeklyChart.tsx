@@ -55,7 +55,7 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
     }
   });
 
-  const total = weeklyDataRaw.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+  const total = weeklyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
