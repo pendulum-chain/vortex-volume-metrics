@@ -61,20 +61,20 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-stretch space-y-0 border-b p-0">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 md:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 border-b md:border-b-0 md:px-6 md:py-6">
           <CardTitle className="text-vortex-950">Weekly Volumes</CardTitle>
           <CardDescription className="text-vortex-800">
             {dateRange?.from ? format(dateRange.from, 'PPP') : ''} - {dateRange?.to ? format(dateRange.to, 'PPP') : ''}
           </CardDescription>
         </div>
-        <div className="flex">
-          <div className="flex flex-col justify-center gap-1 px-8 py-6">
+        <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col justify-center gap-1 px-6 py-4 border-b md:border-b-0 md:px-8 md:py-6">
             <label className="text-vortex-800 text-xs">Select Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="flex h-9 w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal"
+                  className="flex h-9 w-full md:w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateRange?.from ? (
@@ -103,7 +103,7 @@ export function WeeklyChart({ weeklyData, dateRange, setDateRange }: WeeklyChart
               </PopoverContent>
             </Popover>
           </div>
-          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left min-w-[200px]">
+          <div className="flex flex-col justify-center gap-1 px-6 py-4 text-left min-w-[200px] md:border-l md:px-8 md:py-6">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
               ${total.toLocaleString()}

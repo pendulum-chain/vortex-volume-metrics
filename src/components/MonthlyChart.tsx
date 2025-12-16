@@ -51,15 +51,15 @@ export function MonthlyChart({ monthlyData }: MonthlyChartProps) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-stretch space-y-0 border-b p-0">
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-6">
+      <CardHeader className="flex flex-col items-stretch space-y-0 border-b p-0 md:flex-row">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 border-b md:border-b-0 md:px-6 md:py-6">
           <CardTitle className="text-lg text-vortex-950">Monthly Volumes</CardTitle>
           <CardDescription className="text-vortex-800">
             {firstFormatted} to {lastFormatted}
           </CardDescription>
         </div>
-        <div className="flex">
-          <div className="flex flex-col justify-center gap-1 border-l px-8 py-6 text-left min-w-[200px]">
+        <div className="flex flex-col md:flex-row">
+          <div className="flex flex-col justify-center gap-1 px-6 py-4 text-left min-w-[200px] md:border-l md:px-8 md:py-6">
             <span className="text-vortex-800 text-xs">Total Volume</span>
             <span className="text-vortex-950 text-3xl leading-none font-bold">
               ${total.toLocaleString()}
