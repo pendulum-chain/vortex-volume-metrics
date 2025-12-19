@@ -3,6 +3,7 @@ import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
 import { SkeletonChart } from './components/SkeletonChart'
 import type { DateRange } from 'react-day-picker';
+import logo from './assets/blue.svg';
 
 export interface WeeklyData {
   week: string;
@@ -68,9 +69,12 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
+      <div className="min-h-screen  bg-gradient-to-b from-white to-blue-10">
         <div className="container mx-auto p-4">
-          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+          <div>
+            <img src={logo} alt="Vortex Logo" className="w-10 h-10" />
+            <h1 className="text-3xl font-bold mb-4 text-vortex-950">Ramp Volume</h1>
+          </div>
           <div className="space-y-8">
             <SkeletonChart />
             <SkeletonChart />
@@ -82,9 +86,12 @@ function App() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
+      <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
         <div className="container mx-auto p-4">
-          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+        <div className="items-center gap-2 mb-4" >
+          <img src={logo} alt="Vortex Logo"/>
+          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
+        </div>
           <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
             <div className="mb-2 text-red-500">
               <svg
@@ -121,13 +128,16 @@ function App() {
   }
 
   if (!data) {
-     return null; 
+     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-vortex-50 to-white min-w-[700px]">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-10">
       <div className="container mx-auto p-4">
-        <h1 className="text-3xl font-bold mb-4 text-vortex-950">Vortex Ramp Volume</h1>
+        <div>
+          <img src={logo} alt="Vortex Logo"/>
+          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Ramp Volume</h1>
+        </div>
         <div className="space-y-8">
           <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
           <WeeklyChart weeklyDataRaw={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />

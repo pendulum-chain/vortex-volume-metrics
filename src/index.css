@@ -2,6 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Red Hat Display", sans-serif;
+}
+
+.card {
+  padding: 2em;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -30,7 +40,6 @@
     --chart-4: 217 71% 40%; /* vortex-800 */
     --chart-5: 217 71% 40%; /* vortex-800 */
   }
-
 
 }
 

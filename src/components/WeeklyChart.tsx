@@ -32,7 +32,7 @@ const chartConfig = {
   },
   sell_usd: {
     label: 'Sell',
-    color: '#ea580c',
+    color: '#ED3594',
   },
 } satisfies ChartConfig;
 
