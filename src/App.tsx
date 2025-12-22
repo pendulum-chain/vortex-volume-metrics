@@ -69,12 +69,12 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen  bg-gradient-to-b from-white to-blue-10">
+      <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
         <div className="container mx-auto p-4">
-          <div>
-            <img src={logo} alt="Vortex Logo" className="w-10 h-10" />
-            <h1 className="text-3xl font-bold mb-4 text-vortex-950">Ramp Volume</h1>
-          </div>
+        <div className="items-center gap-2 mb-4" >
+          <img src={logo} alt="Vortex Logo"/>
+          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
+        </div>
           <div className="space-y-8">
             <SkeletonChart />
             <SkeletonChart />
@@ -132,11 +132,11 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-10">
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
       <div className="container mx-auto p-4">
-        <div>
+      <div className="items-center gap-2 mb-4" >
           <img src={logo} alt="Vortex Logo"/>
-          <h1 className="text-3xl font-bold mb-4 text-vortex-950">Ramp Volume</h1>
+          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
         </div>
         <div className="space-y-8">
           <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
