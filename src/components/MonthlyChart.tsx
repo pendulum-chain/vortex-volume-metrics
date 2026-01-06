@@ -20,33 +20,40 @@ import {
   ChartLegendContent,
 } from './ui/chart';
 
-const chartConfig = {
-  buy_usd: {
-    label: 'Buy',
-    color: '#1d4ed8', // vortex-700
-  },
-  sell_usd: {
-    label: 'Sell',
-    color: '#ED3594',
-  },
-} satisfies ChartConfig;
+const chainColors = ['#1d4ed8', '#ea580c', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
 
 interface MonthlyChartProps {
   monthlyDataRaw: MonthlyData[];
   dateRange: DateRange | undefined;
 }
 
-export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
-  const monthlyData: MonthlyData[] = monthlyDataRaw.map((data) => {
-    return {
-      month: data.month,
-      buy_usd: Math.round(data.buy_usd),
-      sell_usd: Math.round(data.sell_usd),
-      total_usd: Math.round(data.total_usd),
+export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps) {
+  console.log('MonthlyChart monthlyData:', monthlyData);
+
+  const total = monthlyData.reduce((acc, curr) => acc + curr.chains.reduce((acc, chain) => acc + chain.total_usd, 0), 0);
+
+  const uniqueChains = new Set<string>();
+  monthlyData.forEach(month => month.chains.forEach(chain => uniqueChains.add(chain.chain)));
+  const chainArray = Array.from(uniqueChains);
+
+  const chartConfig: ChartConfig = {};
+  chainArray.forEach((chain, i) => {
+    chartConfig[chain] = {
+      label: chain,
+      color: chainColors[i % chainColors.length],
     };
   });
 
-  const total = monthlyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+  const transformedData = monthlyData.map(month => {
+    const obj: any = { month : month.month };
+    month.chains.forEach(chain => {
+      obj[chain.chain] = chain.total_usd;
+    });
+    return obj;
+  });
+
+  console.log('Transformed monthly chart data:', transformedData);
+  
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;
   const formatMonth = (monthStr: string) => {
@@ -82,7 +89,7 @@ export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
         >
           <BarChart
             accessibilityLayer
-            data={monthlyData}
+            data={transformedData}
             margin={{
               left: 12,
               right: 12,
@@ -107,18 +114,20 @@ export function MonthlyChart({ monthlyDataRaw }: MonthlyChartProps) {
               content={<ChartTooltipContent hideLabel />}
             />
             <ChartLegend content={<ChartLegendContent />} />
-            <Bar
-              dataKey="buy_usd"
-              stackId="a"
-              fill="var(--color-buy_usd)"
-              radius={[0, 0, 4, 4]}
-            />
-            <Bar
-              dataKey="sell_usd"
-              stackId="a"
-              fill="var(--color-sell_usd)"
-              radius={[4, 4, 0, 0]}
-            />
+            {chainArray.map((chain, index) => {
+              const isFirst = index === 0;
+              const isLast = index === chainArray.length - 1;
+              const radius = isFirst ? [0, 0, 4, 4] as [number, number, number, number] : isLast ? [4, 4, 0, 0] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number];
+              return (
+                <Bar
+                  key={chain}
+                  dataKey={chain}
+                  stackId="a"
+                  fill={`var(--color-${chain})`}
+                  radius={radius}
+                />
+              );
+            })}
           </BarChart>
         </ChartContainer>
       </CardContent>
