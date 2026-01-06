@@ -52,7 +52,7 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
   });
 
   const transformedData = weeklyData.map(week => {
-    const obj: any = { week: week.week };
+    const obj: any = { week: `${format(new Date(week.startDate), 'MMM dd')} - ${format(new Date(week.endDate), 'MMM dd')}` };
     week.chains.forEach(chain => {
       obj[chain.chain] = chain.total_usd;
     });
@@ -152,7 +152,12 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={<ChartTooltipContent hideLabel />}
+              content={
+                <ChartTooltipContent
+                  hideLabel={!isSmallScreen}
+                  labelFormatter={(value) => isSmallScreen ? `Week: ${value}` : ''}
+                />
+              }
             />
             <ChartLegend content={<ChartLegendContent />} />
             {chainArray.map((chain, index) => {
