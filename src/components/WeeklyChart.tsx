@@ -18,10 +18,10 @@ import type { ChartConfig } from './ui/chart';
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from './ui/chart';
+import { ChartTooltipContent } from './ui/helpers';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
@@ -152,12 +152,7 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={
-                <ChartTooltipContent
-                  hideLabel={!isSmallScreen}
-                  labelFormatter={(value) => isSmallScreen ? `Week: ${value}` : ''}
-                />
-              }
+              content={<ChartTooltipContent showLabel={isSmallScreen} />}
             />
             <ChartLegend content={<ChartLegendContent />} />
             {chainArray.map((chain, index) => {

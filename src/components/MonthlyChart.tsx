@@ -15,10 +15,10 @@ import type { ChartConfig } from './ui/chart';
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from './ui/chart';
+import { ChartTooltipContent } from './ui/helpers';
 
 const chainColors = ['#1d4ed8', '#ea580c', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
 
@@ -53,7 +53,7 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
   });
 
   console.log('Transformed monthly chart data:', transformedData);
-  
+
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;
   const formatMonth = (monthStr: string) => {
@@ -111,7 +111,7 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
             <ChartTooltip
               cursor={false}
               animationDuration={0}
-              content={<ChartTooltipContent hideLabel />}
+              content={<ChartTooltipContent />}
             />
             <ChartLegend content={<ChartLegendContent />} />
             {chainArray.map((chain, index) => {
