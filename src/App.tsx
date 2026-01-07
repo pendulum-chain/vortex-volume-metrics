@@ -5,20 +5,28 @@ import { SkeletonChart } from './components/SkeletonChart'
 import type { DateRange } from 'react-day-picker';
 import logo from './assets/blue.svg';
 
-export interface WeeklyData {
-  week: string;
-  startDate: string;
-  endDate: string;
+export interface ChainVolume {
+  chain: string;
   buy_usd: number;
   sell_usd: number;
   total_usd: number;
 }
 
+export interface DailyVolume {
+  day: string;
+  chains: ChainVolume[];
+}
+
 export interface MonthlyData {
   month: string;
-  buy_usd: number;
-  sell_usd: number;
-  total_usd: number;
+  chains: ChainVolume[];
+}
+
+export interface WeeklyData {
+  week: string;
+  startDate: string;
+  endDate: string;
+  chains: ChainVolume[];
 }
 
 export interface ApiResponse {
@@ -44,7 +52,7 @@ function App() {
 
   const fetchData = async (start: string, end: string) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/metrics/volumes?start=${start}&end=${end}`);
+      const response = await fetch(`http://localhost:3000/v1/metrics/volumes?start=${start}&end=${end}`);
       const result: ApiResponse = await response.json();
       setData(result);
     } catch (error) {
