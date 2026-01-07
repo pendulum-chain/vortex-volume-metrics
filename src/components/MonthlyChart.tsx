@@ -34,7 +34,7 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
 
   const uniqueChains = new Set<string>();
   monthlyData.forEach(month => month.chains.forEach(chain => uniqueChains.add(chain.chain)));
-  const chainArray = Array.from(uniqueChains);
+  const chainArray = Array.from(uniqueChains).sort();
 
   const chartConfig: ChartConfig = {};
   chainArray.forEach((chain, i) => {

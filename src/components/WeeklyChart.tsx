@@ -41,7 +41,7 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
 
   const uniqueChains = new Set<string>();
   weeklyData.forEach(week => week.chains.forEach(chain => uniqueChains.add(chain.chain)));
-  const chainArray = Array.from(uniqueChains);
+  const chainArray = Array.from(uniqueChains).sort();
 
   const chartConfig: ChartConfig = {};
   chainArray.forEach((chain, i) => {
