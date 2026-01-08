@@ -28,8 +28,6 @@ interface MonthlyChartProps {
 }
 
 export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps) {
-  console.log('MonthlyChart monthlyData:', monthlyData);
-
   const total = monthlyData.reduce((acc, curr) => acc + curr.chains.reduce((acc, chain) => acc + chain.total_usd, 0), 0);
 
   const uniqueChains = new Set<string>();
@@ -51,8 +49,6 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
     });
     return obj;
   });
-
-  console.log('Transformed monthly chart data:', transformedData);
 
   const firstMonth = monthlyData[0]?.month;
   const lastMonth = monthlyData[monthlyData.length - 1]?.month;

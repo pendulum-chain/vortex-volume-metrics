@@ -52,7 +52,7 @@ function App() {
 
   const fetchData = async (start: string, end: string) => {
     try {
-      const response = await fetch(`http://localhost:3000/v1/metrics/volumes?start=${start}&end=${end}`);
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/v1/metrics/volumes?start=${start}&end=${end}`);
       const result: ApiResponse = await response.json();
       setData(result);
     } catch (error) {

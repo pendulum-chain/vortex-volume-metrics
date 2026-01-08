@@ -35,8 +35,6 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
-  console.log('WeeklyChart weeklyData:', weeklyData);
-
   const total = weeklyData.reduce((acc, curr) => acc + curr.chains.reduce((acc, chain) => acc + chain.total_usd, 0), 0);
 
   const uniqueChains = new Set<string>();
@@ -58,8 +56,6 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
     });
     return obj;
   });
-
-  console.log('Transformed weekly chart data:', transformedData);
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
