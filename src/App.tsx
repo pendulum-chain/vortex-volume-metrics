@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { WeeklyChart } from './components/WeeklyChart'
 import { MonthlyChart } from './components/MonthlyChart'
 import { SkeletonChart } from './components/SkeletonChart'
+import { MaintenancePage } from './components/MaintenancePage'
 import type { DateRange } from 'react-day-picker';
 import logo from './assets/blue.svg';
+
+// Maintenance mode flag - set to false to restore normal operation
+const MAINTENANCE_MODE = true;
 
 export interface WeeklyData {
   week: string;
@@ -66,6 +70,21 @@ function App() {
       }
     }
   }, [dateRange]);
+
+  // Maintenance mode takes priority over all other states
+  if (MAINTENANCE_MODE) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
+        <div className="container mx-auto p-4">
+          <div className="items-center gap-2 mb-4">
+            <img src={logo} alt="Vortex Logo"/>
+            <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
+          </div>
+          <MaintenancePage />
+        </div>
+      </div>
+    );
+  }
 
   if (loading) {
     return (
@@ -138,10 +157,14 @@ function App() {
           <img src={logo} alt="Vortex Logo"/>
           <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
         </div>
-        <div className="space-y-8">
-          <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
-          <WeeklyChart weeklyDataRaw={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />
-        </div>
+        {MAINTENANCE_MODE ? (
+          <MaintenancePage />
+        ) : (
+          <div className="space-y-8">
+            <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
+            <WeeklyChart weeklyDataRaw={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />
+          </div>
+        )}
       </div>
     </div>
   )
