@@ -22,7 +22,8 @@ import {
 import { ChartTooltipContent } from './ui/helpers';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius } from '../lib/chartUtils';
+import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius, getBarAnimationProps } from '../lib/chartUtils';
+import { useReducedMotion } from '../lib/useReducedMotion';
 
 interface WeeklyChartProps {
   weeklyDataRaw: WeeklyData[];
@@ -31,6 +32,7 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
+  const reducedMotion = useReducedMotion();
   const total = calculateTotalVolume(weeklyData);
   const chainArray = extractChainArray(weeklyData);
   const chartConfig = buildChartConfig(chainArray);
@@ -83,7 +85,6 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
-                  initialFocus
                   mode="range"
                   defaultMonth={dateRange?.from}
                   selected={dateRange}
@@ -123,6 +124,7 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
                 stackId="a"
                 fill={`var(--color-${chain})`}
                 radius={getBarRadius(index, chainArray.length)}
+                {...getBarAnimationProps(index, reducedMotion)}
               />
             ))}
           </BarChart>

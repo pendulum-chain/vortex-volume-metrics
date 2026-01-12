@@ -9,3 +9,9 @@ export const chainColors: Record<string, string> = {
   polygon: '#7B3FE4',
 };
 
+export const chartAnimation = {
+  duration: 30,
+  easing: 'linear' as const,
+  staggerDelay: 30,
+};
+

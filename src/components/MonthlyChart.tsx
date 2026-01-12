@@ -16,13 +16,15 @@ import {
   ChartLegendContent,
 } from './ui/chart';
 import { ChartTooltipContent } from './ui/helpers';
-import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius } from '../lib/chartUtils';
+import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius, getBarAnimationProps } from '../lib/chartUtils';
+import { useReducedMotion } from '../lib/useReducedMotion';
 
 interface MonthlyChartProps {
   monthlyDataRaw: MonthlyData[];
 }
 
 export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps) {
+  const reducedMotion = useReducedMotion();
   const total = calculateTotalVolume(monthlyData);
   const chainArray = extractChainArray(monthlyData);
   const chartConfig = buildChartConfig(chainArray);
@@ -88,6 +90,7 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
                 stackId="a"
                 fill={`var(--color-${chain})`}
                 radius={getBarRadius(index, chainArray.length)}
+                {...getBarAnimationProps(index, reducedMotion)}
               />
             ))}
           </BarChart>
