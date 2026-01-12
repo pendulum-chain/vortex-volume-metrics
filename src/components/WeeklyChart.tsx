@@ -6,7 +6,6 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import type { WeeklyData } from '../App';
-
 import {
   Card,
   CardContent,
@@ -14,7 +13,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import type { ChartConfig } from './ui/chart';
 import {
   ChartContainer,
   ChartTooltip,
@@ -24,9 +22,7 @@ import {
 import { ChartTooltipContent } from './ui/helpers';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-
-const chainColors = ['#1d4ed8', '#ea580c', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
-
+import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius } from '../lib/chartUtils';
 
 interface WeeklyChartProps {
   weeklyDataRaw: WeeklyData[];
@@ -35,22 +31,14 @@ interface WeeklyChartProps {
 }
 
 export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
-  const total = weeklyData.reduce((acc, curr) => acc + curr.chains.reduce((acc, chain) => acc + chain.total_usd, 0), 0);
-
-  const uniqueChains = new Set<string>();
-  weeklyData.forEach(week => week.chains.forEach(chain => uniqueChains.add(chain.chain)));
-  const chainArray = Array.from(uniqueChains).sort();
-
-  const chartConfig: ChartConfig = {};
-  chainArray.forEach((chain, i) => {
-    chartConfig[chain] = {
-      label: chain,
-      color: chainColors[i % chainColors.length],
-    };
-  });
+  const total = calculateTotalVolume(weeklyData);
+  const chainArray = extractChainArray(weeklyData);
+  const chartConfig = buildChartConfig(chainArray);
 
   const transformedData = weeklyData.map(week => {
-    const obj: any = { week: `${format(new Date(week.startDate), 'MMM dd')} - ${format(new Date(week.endDate), 'MMM dd')}` };
+    const obj: Record<string, string | number> = {
+      week: `${format(new Date(week.startDate), 'MMM dd')} - ${format(new Date(week.endDate), 'MMM dd')}`
+    };
     week.chains.forEach(chain => {
       obj[chain.chain] = chain.total_usd;
     });
@@ -60,13 +48,9 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsSmallScreen(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -84,16 +68,11 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
             <label className="text-vortex-800 text-xs">Select Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className="flex h-9 w-full md:w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal"
-                >
+                <button className="flex h-9 w-full md:w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateRange?.from ? (
                     dateRange.to ? (
-                      <>
-                        {format(dateRange.from, 'LLL dd, y')} -{' '}
-                        {format(dateRange.to, 'LLL dd, y')}
-                      </>
+                      <>{format(dateRange.from, 'LLL dd, y')} - {format(dateRange.to, 'LLL dd, y')}</>
                     ) : (
                       format(dateRange.from, 'LLL dd, y')
                     )
@@ -123,18 +102,8 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
         </div>
       </CardHeader>
       <CardContent className="px-6 pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={transformedData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+          <BarChart accessibilityLayer data={transformedData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="week"
@@ -145,26 +114,17 @@ export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange
               textAnchor="end"
               height={80}
             />
-            <ChartTooltip
-              cursor={false}
-              animationDuration={0}
-              content={<ChartTooltipContent showLabel={isSmallScreen} />}
-            />
+            <ChartTooltip cursor={false} animationDuration={0} content={<ChartTooltipContent showLabel={isSmallScreen} />} />
             <ChartLegend content={<ChartLegendContent />} />
-            {chainArray.map((chain, index) => {
-              const isFirst = index === 0;
-              const isLast = index === chainArray.length - 1;
-              const radius = isFirst ? [0, 0, 4, 4] as [number, number, number, number] : isLast ? [4, 4, 0, 0] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number];
-              return (
-                <Bar
-                  key={chain}
-                  dataKey={chain}
-                  stackId="a"
-                  fill={`var(--color-${chain})`}
-                  radius={radius}
-                />
-              );
-            })}
+            {chainArray.map((chain, index) => (
+              <Bar
+                key={chain}
+                dataKey={chain}
+                stackId="a"
+                fill={`var(--color-${chain})`}
+                radius={getBarRadius(index, chainArray.length)}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>

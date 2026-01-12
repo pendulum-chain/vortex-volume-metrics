@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { WeeklyChart } from './components/WeeklyChart'
-import { MonthlyChart } from './components/MonthlyChart'
-import { SkeletonChart } from './components/SkeletonChart'
+import { WeeklyChart } from './components/WeeklyChart';
+import { MonthlyChart } from './components/MonthlyChart';
+import { SkeletonChart } from './components/SkeletonChart';
+import { PageLayout } from './components/PageLayout';
 import type { DateRange } from 'react-day-picker';
-import logo from './assets/blue.svg';
 
 export interface ChainVolume {
   chain: string;
@@ -77,82 +77,64 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
-        <div className="container mx-auto p-4">
-        <div className="items-center gap-2 mb-4" >
-          <img src={logo} alt="Vortex Logo"/>
-          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
+      <PageLayout>
+        <div className="space-y-8">
+          <SkeletonChart />
+          <SkeletonChart />
         </div>
-          <div className="space-y-8">
-            <SkeletonChart />
-            <SkeletonChart />
-          </div>
-        </div>
-      </div>
+      </PageLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
-        <div className="container mx-auto p-4">
-        <div className="items-center gap-2 mb-4" >
-          <img src={logo} alt="Vortex Logo"/>
-          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
-        </div>
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-            <div className="mb-2 text-red-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="mx-auto"
-              >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" x2="12" y1="8" y2="12" />
-                <line x1="12" x2="12.01" y1="16" y2="16" />
-              </svg>
-            </div>
-            <h3 className="mb-1 text-lg font-semibold text-red-900">Data Unavailable</h3>
-            <p className="mb-4 text-sm text-red-700">
-              We couldn't load the volume metrics properly. Please try again later.
-            </p>
-            <button
-              onClick={() => window.location.reload()}
-              className="rounded bg-white px-4 py-2 text-sm font-medium text-red-900 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
+      <PageLayout>
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-center">
+          <div className="mb-2 text-red-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mx-auto"
             >
-              Retry
-            </button>
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" x2="12" y1="8" y2="12" />
+              <line x1="12" x2="12.01" y1="16" y2="16" />
+            </svg>
           </div>
+          <h3 className="mb-1 text-lg font-semibold text-red-900">Data Unavailable</h3>
+          <p className="mb-4 text-sm text-red-700">
+            We couldn't load the volume metrics properly. Please try again later.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="rounded bg-white px-4 py-2 text-sm font-medium text-red-900 shadow-sm ring-1 ring-inset ring-red-300 hover:bg-red-50"
+          >
+            Retry
+          </button>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   if (!data) {
-     return null;
+    return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-blue-100">
-      <div className="container mx-auto p-4">
-      <div className="items-center gap-2 mb-4" >
-          <img src={logo} alt="Vortex Logo"/>
-          <h1 className="ml-0.5 font-bold text-blue-800 uppercase">Ramp Volume</h1>
-        </div>
-        <div className="space-y-8">
-          <MonthlyChart monthlyDataRaw={data?.monthly || []} dateRange={dateRange} />
-          <WeeklyChart weeklyDataRaw={data?.weekly || []} dateRange={dateRange} setDateRange={setDateRange} />
-        </div>
+    <PageLayout>
+      <div className="space-y-8">
+        <MonthlyChart monthlyDataRaw={data.monthly} />
+        <WeeklyChart weeklyDataRaw={data.weekly} dateRange={dateRange} setDateRange={setDateRange} />
       </div>
-    </div>
-  )
+    </PageLayout>
+  );
 }
 
-export default App
+export default App;

@@ -1,9 +1,7 @@
 "use client"
 
 import { Bar, BarChart, CartesianGrid, XAxis } from 'recharts';
-import type { DateRange } from 'react-day-picker';
 import type { MonthlyData } from '../App';
-
 import {
   Card,
   CardContent,
@@ -11,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import type { ChartConfig } from './ui/chart';
 import {
   ChartContainer,
   ChartTooltip,
@@ -19,44 +16,33 @@ import {
   ChartLegendContent,
 } from './ui/chart';
 import { ChartTooltipContent } from './ui/helpers';
-
-const chainColors = ['#1d4ed8', '#ea580c', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16'];
+import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius } from '../lib/chartUtils';
 
 interface MonthlyChartProps {
   monthlyDataRaw: MonthlyData[];
-  dateRange: DateRange | undefined;
 }
 
 export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps) {
-  const total = monthlyData.reduce((acc, curr) => acc + curr.chains.reduce((acc, chain) => acc + chain.total_usd, 0), 0);
-
-  const uniqueChains = new Set<string>();
-  monthlyData.forEach(month => month.chains.forEach(chain => uniqueChains.add(chain.chain)));
-  const chainArray = Array.from(uniqueChains).sort();
-
-  const chartConfig: ChartConfig = {};
-  chainArray.forEach((chain, i) => {
-    chartConfig[chain] = {
-      label: chain,
-      color: chainColors[i % chainColors.length],
-    };
-  });
+  const total = calculateTotalVolume(monthlyData);
+  const chainArray = extractChainArray(monthlyData);
+  const chartConfig = buildChartConfig(chainArray);
 
   const transformedData = monthlyData.map(month => {
-    const obj: any = { month : month.month };
+    const obj: Record<string, string | number> = { month: month.month };
     month.chains.forEach(chain => {
       obj[chain.chain] = chain.total_usd;
     });
     return obj;
   });
 
-  const firstMonth = monthlyData[0]?.month;
-  const lastMonth = monthlyData[monthlyData.length - 1]?.month;
   const formatMonth = (monthStr: string) => {
     const [year, month] = monthStr.split('-').map(Number);
     const date = new Date(year, month - 1, 1);
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
+
+  const firstMonth = monthlyData[0]?.month;
+  const lastMonth = monthlyData[monthlyData.length - 1]?.month;
   const firstFormatted = firstMonth ? formatMonth(firstMonth) : '';
   const lastFormatted = lastMonth ? formatMonth(lastMonth) : '';
 
@@ -79,18 +65,8 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
         </div>
       </CardHeader>
       <CardContent className="px-6 pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={transformedData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+          <BarChart accessibilityLayer data={transformedData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
@@ -98,32 +74,22 @@ export function MonthlyChart({ monthlyDataRaw: monthlyData }: MonthlyChartProps)
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value: string) => {
-                // Parse YYYY-MM format without timezone issues
                 const [year, month] = value.split('-').map(Number);
                 const date = new Date(year, month - 1, 1);
                 return date.toLocaleDateString('en-US', { month: 'short' });
               }}
             />
-            <ChartTooltip
-              cursor={false}
-              animationDuration={0}
-              content={<ChartTooltipContent />}
-            />
+            <ChartTooltip cursor={false} animationDuration={0} content={<ChartTooltipContent />} />
             <ChartLegend content={<ChartLegendContent />} />
-            {chainArray.map((chain, index) => {
-              const isFirst = index === 0;
-              const isLast = index === chainArray.length - 1;
-              const radius = isFirst ? [0, 0, 4, 4] as [number, number, number, number] : isLast ? [4, 4, 0, 0] as [number, number, number, number] : [0, 0, 0, 0] as [number, number, number, number];
-              return (
-                <Bar
-                  key={chain}
-                  dataKey={chain}
-                  stackId="a"
-                  fill={`var(--color-${chain})`}
-                  radius={radius}
-                />
-              );
-            })}
+            {chainArray.map((chain, index) => (
+              <Bar
+                key={chain}
+                dataKey={chain}
+                stackId="a"
+                fill={`var(--color-${chain})`}
+                radius={getBarRadius(index, chainArray.length)}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>
