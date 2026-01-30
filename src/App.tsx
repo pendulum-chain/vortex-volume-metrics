@@ -5,6 +5,7 @@ import {SkeletonChart} from './components/SkeletonChart'
 import {MaintenancePage} from './components/MaintenancePage'
 import {PageLayout} from './components/PageLayout';
 import type {DateRange} from 'react-day-picker';
+import logo from './assets/blue.svg';
 
 // Maintenance mode flag - set to false to restore normal operation
 const MAINTENANCE_MODE = true;
