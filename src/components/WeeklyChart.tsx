@@ -6,7 +6,6 @@ import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 import type { WeeklyData } from '../App';
-
 import {
   Card,
   CardContent,
@@ -14,28 +13,17 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
-import type { ChartConfig } from './ui/chart';
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
 } from './ui/chart';
+import { ChartTooltipContent } from './ui/helpers';
 import { Calendar } from './ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-
-const chartConfig = {
-  buy_usd: {
-    label: 'Buy',
-    color: '#1d4ed8', // vortex-700
-  },
-  sell_usd: {
-    label: 'Sell',
-    color: '#ED3594',
-  },
-} satisfies ChartConfig;
-
+import { calculateTotalVolume, extractChainArray, buildChartConfig, getBarRadius, getBarAnimationProps } from '../lib/chartUtils';
+import { useReducedMotion } from '../lib/useReducedMotion';
 
 interface WeeklyChartProps {
   weeklyDataRaw: WeeklyData[];
@@ -43,30 +31,28 @@ interface WeeklyChartProps {
   setDateRange: (range: DateRange | undefined) => void;
 }
 
-export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyChartProps) {
-  const weeklyData: WeeklyData[] = weeklyDataRaw.map((data) => {
-    return {
-        week: data.week,
-        startDate: data.startDate,
-        endDate: data.endDate,
-        buy_usd: Math.round(data.buy_usd),
-        sell_usd: Math.round(data.sell_usd),
-        total_usd: Math.round(data.total_usd),
-    }
-  });
+export function WeeklyChart({ weeklyDataRaw: weeklyData, dateRange, setDateRange }: WeeklyChartProps) {
+  const reducedMotion = useReducedMotion();
+  const total = calculateTotalVolume(weeklyData);
+  const chainArray = extractChainArray(weeklyData);
+  const chartConfig = buildChartConfig(chainArray);
 
-  const total = weeklyData.reduce((acc, curr) => acc + curr.buy_usd + curr.sell_usd, 0);
+  const transformedData = weeklyData.map(week => {
+    const obj: Record<string, string | number> = {
+      week: `${format(new Date(week.startDate), 'MMM dd')} - ${format(new Date(week.endDate), 'MMM dd')}`
+    };
+    week.chains.forEach(chain => {
+      obj[chain.chain] = chain.total_usd;
+    });
+    return obj;
+  });
 
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsSmallScreen(window.innerWidth < 768);
-    };
-
+    const handleResize = () => setIsSmallScreen(window.innerWidth < 768);
     handleResize();
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -84,16 +70,11 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
             <label className="text-vortex-800 text-xs">Select Date Range</label>
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className="flex h-9 w-full md:w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal"
-                >
+                <button className="flex h-9 w-full md:w-[280px] rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {dateRange?.from ? (
                     dateRange.to ? (
-                      <>
-                        {format(dateRange.from, 'LLL dd, y')} -{' '}
-                        {format(dateRange.to, 'LLL dd, y')}
-                      </>
+                      <>{format(dateRange.from, 'LLL dd, y')} - {format(dateRange.to, 'LLL dd, y')}</>
                     ) : (
                       format(dateRange.from, 'LLL dd, y')
                     )
@@ -104,7 +85,6 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0">
                 <Calendar
-                  initialFocus
                   mode="range"
                   defaultMonth={dateRange?.from}
                   selected={dateRange}
@@ -123,18 +103,8 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
         </div>
       </CardHeader>
       <CardContent className="px-6 pt-6">
-        <ChartContainer
-          config={chartConfig}
-          className="aspect-auto h-[250px] w-full"
-        >
-          <BarChart
-            accessibilityLayer
-            data={weeklyData}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
+        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+          <BarChart accessibilityLayer data={transformedData} margin={{ left: 12, right: 12 }}>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="week"
@@ -145,31 +115,18 @@ export function WeeklyChart({ weeklyDataRaw, dateRange, setDateRange }: WeeklyCh
               textAnchor="end"
               height={80}
             />
-            <ChartTooltip
-              cursor={false}
-              animationDuration={0}
-              content={
-                <ChartTooltipContent
-                  hideLabel={!isSmallScreen}
-                  labelFormatter={(value) => isSmallScreen ? `Week: ${value}` : ''}
-                />
-              }
-            />
+            <ChartTooltip cursor={false} animationDuration={0} content={<ChartTooltipContent showLabel={isSmallScreen} />} />
             <ChartLegend content={<ChartLegendContent />} />
-            <Bar
-              dataKey="buy_usd"
-              stackId="a"
-              fill="var(--color-buy_usd)"
-              radius={[0, 0, 4, 4]}
-              maxBarSize={78}
-            />
-            <Bar
-              dataKey="sell_usd"
-              stackId="a"
-              fill="var(--color-sell_usd)"
-              radius={[4, 4, 0, 0]}
-              maxBarSize={78}
-            />
+            {chainArray.map((chain, index) => (
+              <Bar
+                key={chain}
+                dataKey={chain}
+                stackId="a"
+                fill={`var(--color-${chain})`}
+                radius={getBarRadius(index, chainArray.length)}
+                {...getBarAnimationProps(index, reducedMotion)}
+              />
+            ))}
           </BarChart>
         </ChartContainer>
       </CardContent>
